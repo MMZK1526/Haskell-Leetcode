@@ -1,3 +1,4 @@
+import Control.Monad
 import Data.Array
 import Data.Bifunctor
 import Data.Foldable
@@ -31,17 +32,16 @@ import Data.Ord
 -- Assume that the given amount is always less than the sum of the given coins,
 -- and the coin denominations are always positive.
 sweeper :: [Int] -> [Int] -> Int -> Maybe (Int, [Int])
-sweeper myMoney coins amount
-  = case maximumBy (comparing $ second (Down . sum)) choices of
-      (0, _)  -> Nothing
-      (s, cs) -> Just (length myMoney - s, cs)
+sweeper myMoney coins amount =
+  case maximumBy (comparing $ fmap (second (Down . sum))) choices of
+      Nothing      -> Nothing
+      Just (s, cs) -> Just (length myMoney - s, cs)
   where
     allMoney                = sum myMoney
     preciseSpendings        = drop amount $ maxSpending myMoney allMoney
     changes                 = change coins (allMoney - amount)
-    choices                 = zipWith worker preciseSpendings changes
-    worker _ Nothing        = (0, [])
-    worker (s, cs) (Just c) = (s - c, cs)
+    choices                 = zipWith (liftM2 worker) preciseSpendings changes
+    worker (s, cs) c        = (s - c, cs)
 
 tabulate :: Ix i => (i, i) -> (i -> a) -> Array i a
 tabulate r f = array r [(i, f i) | i <- range r]
@@ -68,9 +68,9 @@ change coins amount = elems cache
 -- find the maximum number of coins I can spend for exactly the given amount,
 -- with the given amount ranging from 0 to the given max amount. Also returns
 -- the list of coins to be spent.
-maxSpending :: [Int] -> Int -> [(Int, [Int])]
+maxSpending :: [Int] -> Int -> [Maybe (Int, [Int])]
 maxSpending myMoney amount
-  = fromMaybe (0, []) . snd <$> filter ((== len) . snd . fst) (assocs cache)
+  = snd <$> filter ((== len) . snd . fst) (assocs cache)
   where
     len         = length myMoney
     coinSuffArr = listArray (0, len - 1) $ suffixes myMoney
