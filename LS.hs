@@ -11,9 +11,8 @@ module LS where
 
 import Control.Monad (forM_, forM, when)
 import Data.Array (Array, bounds, listArray, (!))
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 import Data.Foldable (minimumBy)
-import Maybes (isNothing)
 
 minimumOn :: Ord b => (a -> b) -> [a] -> a
 minimumOn f = minimumBy (( . f) . compare . f)
