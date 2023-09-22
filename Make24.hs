@@ -30,11 +30,8 @@ make24 xs = go (map (\x -> (x % 1, Int x)) xs)
   where
     work (n1, exp1) (n2, exp2)
       = [(n1 + n2, Add exp1 exp2), (n1 * n2, Mul exp1 exp2)]
-     ++ if n1 > n2
-      then [(n1 - n2, Sub exp1 exp2)]
-      else [(n1 - n2, Sub exp1 exp2)]
+     ++ (guard (n1 > n2) >> [(n1 - n2, Sub exp1 exp2)])
      ++ [(n1 / n2, Div exp1 exp2) | n2 /= 0] 
-     ++ [(n2 / n1, Div exp2 exp1) | n1 /= 0]
     go []          = Nothing
     go [(24, exp)] = Just exp
     go [_]         = Nothing
