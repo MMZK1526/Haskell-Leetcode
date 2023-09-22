@@ -43,3 +43,16 @@ make24 xs = go (map (\x -> (x % 1, Int x)) xs)
 pick1 :: [a] -> [(a, [a])]
 pick1 []       = []
 pick1 (x : xs) = (x, xs) : [(y, x : ys) | (y, ys) <- pick1 xs]
+
+selfSymJoin :: Ord a => Int -> [a] -> [[a]]
+selfSymJoin 0 xs = [[]]
+selfSymJoin n xs
+  = [x : y | x <- xs, y <- selfSymJoin (n - 1) [x' | x' <- xs, x' >= x]]
+
+tabPrint :: IO ()
+tabPrint = do
+  forM_ (selfSymJoin 4 [1..10]) $ \nums -> do
+    putStr $ show nums ++ ": "
+    case make24 nums of
+      Nothing  -> putStrLn "No solution"
+      Just exp -> putStrLn $ show exp ++ " = 24"
