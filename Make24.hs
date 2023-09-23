@@ -13,6 +13,31 @@ data Exp = Int Int
          | Div Exp Exp
   deriving Eq
 
+instance Num Exp where
+  (+) :: Exp -> Exp -> Exp
+  (+) = Add
+
+  (-) :: Exp -> Exp -> Exp
+  (-) = Sub
+
+  (*) :: Exp -> Exp -> Exp
+  (*) = Mul
+
+  fromInteger :: Integer -> Exp
+  fromInteger = Int . fromInteger
+
+  abs :: Exp -> Exp
+  abs = undefined
+  signum :: Exp -> Exp
+  signum = undefined
+
+instance Fractional Exp where
+  (/) :: Exp -> Exp -> Exp
+  (/) = Div
+
+  fromRational :: Rational -> Exp
+  fromRational = Int . fromInteger . numerator
+
 instance Show Exp where
   showsPrec :: Int -> Exp -> ShowS
   showsPrec _ (Int n)     = shows n
@@ -29,10 +54,9 @@ make24 :: [Int] -> Maybe Exp
 make24 xs = go (map (\x -> (x % 1, Int x)) xs)
   where
     work (n1, exp1) (n2, exp2)
-      = [(n1 + n2, Add exp1 exp2), (n1 * n2, Mul exp1 exp2)]
-     ++ (guard (n1 > n2) >> [(n1 - n2, Sub exp1 exp2)])
-     ++ [(n1 / n2, Div exp1 exp2) | n2 /= 0] 
-    go []          = Nothing
+      = [(n1 + n2, exp1 + exp2), (n1 * n2, exp1 * exp2)]
+     ++ (guard (n1 > n2) >> [(n1 - n2, exp1 - exp2)])
+     ++ [(n1 / n2, exp1 / exp2) | n2 /= 0] 
     go [(24, exp)] = Just exp
     go [_]         = Nothing
     go xs          = msum $ do
