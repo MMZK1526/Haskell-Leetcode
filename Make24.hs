@@ -41,7 +41,7 @@ instance Fractional Exp where
 instance Show Exp where
   showsPrec :: Int -> Exp -> ShowS
   showsPrec _ (Int n)     = shows n
-  showsPrec d (Add e1 e2) = showParen (d > 6) 
+  showsPrec d (Add e1 e2) = showParen (d > 6)
                           $ showsPrec 6 e1 . showString " + " . showsPrec 6 e2
   showsPrec d (Sub e1 e2) = showParen (d > 6)
                           $ showsPrec 6 e1 . showString " - " . showsPrec 7 e2
@@ -56,7 +56,7 @@ make24 xs = go (map (\x -> (x % 1, Int x)) xs)
     work (n1, exp1) (n2, exp2)
       = [(n1 + n2, exp1 + exp2), (n1 * n2, exp1 * exp2)]
      ++ (guard (n1 > n2) >> [(n1 - n2, exp1 - exp2)])
-     ++ [(n1 / n2, exp1 / exp2) | n2 /= 0] 
+     ++ [(n1 / n2, exp1 / exp2) | n2 /= 0]
     go [(24, exp)] = Just exp
     go [_]         = Nothing
     go xs          = msum $ do
