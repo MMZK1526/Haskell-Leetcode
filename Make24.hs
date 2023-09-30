@@ -50,16 +50,16 @@ instance Show Exp where
   showsPrec d (Div e1 e2) = showParen (d > 7)
                           $ showsPrec 7 e1 . showString " / " . showsPrec 8 e2
 
-make24 :: [Int] -> Maybe Exp
-make24 xs = go (map (\x -> (x % 1, Int x)) xs)
+make24 :: Int -> [Int] -> Maybe Exp
+make24 target xs = go (map (\x -> (x % 1, Int x)) xs)
   where
     work (n1, exp1) (n2, exp2)
       = [(n1 + n2, exp1 + exp2), (n1 * n2, exp1 * exp2)]
      ++ (guard (n1 > n2) >> [(n1 - n2, exp1 - exp2)])
      ++ [(n1 / n2, exp1 / exp2) | n2 /= 0]
-    go [(24, exp)] = Just exp
-    go [_]         = Nothing
-    go xs          = msum $ do
+    go [(t, exp)] | t == target % 1 = Just exp
+    go [_]                          = Nothing
+    go xs                           = msum $ do
       (x, xs')  <- pick1 xs
       (y, xs'') <- pick1 xs'
       pure $ msum [go $ choice : xs'' | choice <- work x y]
@@ -77,6 +77,6 @@ tabPrint :: IO ()
 tabPrint = do
   forM_ (selfSymJoin 4 [1..10]) $ \nums -> do
     putStr $ show nums ++ ": "
-    case make24 nums of
+    case make24 24 nums of
       Nothing  -> putStrLn "No solution"
       Just exp -> putStrLn $ show exp ++ " = 24"
